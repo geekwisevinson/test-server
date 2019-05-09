@@ -1,0 +1,16 @@
+{
+  "name": "test-server",
+  "version": "1.0.0",
+  "description": "test server",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "server"
+  ],
+  "author": "vinson f",
+  "license": "ISC"
+}
