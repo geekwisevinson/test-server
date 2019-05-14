@@ -8,6 +8,7 @@ const {
     GraphQLSchema,
     GraphQLInt,
     GraphQLList,
+    GraphQLNonNull,
 } = graphgl;
 
 
@@ -35,8 +36,13 @@ const AuthorType = new GraphQLObjectType({
         age: {type: GraphQLInt},
         books:{
             type: new GraphQLList(BookType),
+            args: {name: {type: GraphQLString}},
             resolve(parent, args) {
-                return Book.find({authorID: parent.id});
+                const query = {authorID: parent.id};
+                if (args.name) {
+                    query.name = {$regex: args.name, $options: "ig"}
+                }
+                return Book.find(query);
             }
         }
     })
@@ -52,6 +58,13 @@ const RootQuery = new GraphQLObjectType({
                 return Book.findById(args.id);
             }
         },
+        queryBooks: {
+            type: new GraphQLList(BookType),
+            args: {name: {type: GraphQLString}},
+            resolve(parent,args) {
+                return Book.find({name: {$regex: args.name, $options: "ig"} });
+            }
+        },
         author: {
             type: AuthorType,
             args: {id: {type: GraphQLID}},
@@ -61,8 +74,13 @@ const RootQuery = new GraphQLObjectType({
         },
         books:{
             type: new GraphQLList(BookType),
+            args: {name: {type: GraphQLString}},
             resolve(parent,args) {
-                return Book.find({});
+                const query = {};
+                if (args.name) {
+                    query.name = {$regex: args.name, $options: "ig"}
+                }
+                return Book.find(query);
             }
         },
         authors:{
@@ -80,8 +98,8 @@ const Mutation = new GraphQLObjectType({
         addAuthor: {
             type: AuthorType,
             args: {
-                name: {type: GraphQLString},
-                age: {type: GraphQLInt}
+                name: {type: new GraphQLNonNull(GraphQLString)},
+                age: {type: new GraphQLNonNull(GraphQLInt)}
             },
             resolve(parent, args) {
                 let author = new Author({
@@ -94,9 +112,9 @@ const Mutation = new GraphQLObjectType({
         addBook: {
             type: BookType,
             args:{
-                name: {type: GraphQLString},
-                genre: {type: GraphQLString},
-                authorID: {type: GraphQLID},
+                name: {type: new GraphQLNonNull(GraphQLString)},
+                genre: {type: new GraphQLNonNull(GraphQLString)},
+                authorID: {type: new GraphQLNonNull(GraphQLID)},
             },
             resolve(parent, args){
                 let book = new Book({

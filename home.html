@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+home
+<form id="book-search">
+    <input type="text" id="search" name="search" placeholder="Search..." autocomplete="off" />
+    <button type="submit">Enter</button>
+</form>
+<div id="book-container"></div>
+<script>
+    const bookContainer = document.querySelector("#book-container");
+    const form = document.querySelector("#book-search");
+
+    const getBooksQuery = (keyword) => `{ books { name author {name} } }`;
+
+    const renderBooks = ({ data }) => {
+        const { books = [] } = data;
+
+        while (bookContainer.firstChild) {
+            bookContainer.removeChild(bookContainer.firstChild);
+        }
+
+        const bookFragment = document.createDocumentFragment();
+        const booksList = document.createElement('ul');
+
+        books.forEach((book) => {
+            const booksListItem = document.createElement('li');
+            const booksListLink = document.createElement('a');
+            booksListLink.href = book.url;
+            booksListLink.textContent = "Click To View";
+            booksListItem.textContent = `${book.name} - ${book.author.name}`;
+            booksListItem.appendChild(booksListLink);
+            booksList.appendChild(booksListItem);
+        });
+
+        bookFragment.appendChild(booksList);
+        bookContainer.appendChild(bookFragment);
+    };
+
+    const loadBooks = (ev) => {
+        ev.preventDefault();
+        const keyword = form.elements["search"].value;
+
+        const options = {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: keyword ? keyword : getBooksQuery(keyword)
+            })
+        };
+
+        fetch(`http://localhost:3000/graphql`, options)
+            .then(res => res.json())
+            .then(renderBooks);
+
+        form.reset();
+    };
+
+    form.addEventListener("submit", loadBooks)
+
+</script>
+</body>
+</html>
