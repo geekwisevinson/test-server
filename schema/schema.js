@@ -58,13 +58,6 @@ const RootQuery = new GraphQLObjectType({
                 return Book.findById(args.id);
             }
         },
-        queryBooks: {
-            type: new GraphQLList(BookType),
-            args: {name: {type: GraphQLString}},
-            resolve(parent,args) {
-                return Book.find({name: {$regex: args.name, $options: "ig"} });
-            }
-        },
         author: {
             type: AuthorType,
             args: {id: {type: GraphQLID}},
@@ -85,8 +78,13 @@ const RootQuery = new GraphQLObjectType({
         },
         authors:{
             type: new GraphQLList(AuthorType),
+            args: {name: {type: GraphQLString}},
             resolve(parent,args) {
-                return Author.find({});
+                const query = {};
+                if (args.name) {
+                    query.name = {$regex: args.name, $options: "ig"}
+                }
+                return Author.find(query);
             }
         }
     }
