@@ -7,7 +7,7 @@
 <body>
 home
 <form id="book-search">
-    <input type="text" id="search" name="search" placeholder="Search..." autocomplete="off" />
+    <textarea id="search" name="search" placeholder="Search..." autocomplete="off" cols="40" rows="10"> </textarea>
     <button type="submit">Enter</button>
 </form>
 <div id="book-container"></div>
@@ -18,27 +18,35 @@ home
     const getBooksQuery = (keyword) => `{ books { name author {name} } }`;
 
     const renderBooks = ({ data }) => {
-        const { books = [] } = data;
-
+        // const { books = [] } = data;
+        //
         while (bookContainer.firstChild) {
             bookContainer.removeChild(bookContainer.firstChild);
         }
 
-        const bookFragment = document.createDocumentFragment();
-        const booksList = document.createElement('ul');
+        createTree(data, bookContainer);
+        function createTree(p_data, parent ) {
+            const keys = Object.keys(p_data);
+            const ul = document.createElement('ul');
+            parent.appendChild(ul);
+            keys.forEach( key => {
+                const li = document.createElement('li');
+                ul.appendChild(li);
+                const title = document.createElement('li');
+                title.innerText = key;
+                li.appendChild(title);
+                if (typeof (p_data[key]) === 'object') {
+                    console.log('found array', p_data[key]);
+                    createTree(p_data[key], ul);
 
-        books.forEach((book) => {
-            const booksListItem = document.createElement('li');
-            const booksListLink = document.createElement('a');
-            booksListLink.href = book.url;
-            booksListLink.textContent = "Click To View";
-            booksListItem.textContent = `${book.name} - ${book.author.name}`;
-            booksListItem.appendChild(booksListLink);
-            booksList.appendChild(booksListItem);
-        });
+                } else {
+                    const primitive = document.createTextNode(p_data[key]);
+                    console.log('primitive', p_data[key]);
+                    li.appendChild(primitive);
+                }
+            })
+        }
 
-        bookFragment.appendChild(booksList);
-        bookContainer.appendChild(bookFragment);
     };
 
     const loadBooks = (ev) => {

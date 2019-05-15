@@ -107,6 +107,15 @@ const Mutation = new GraphQLObjectType({
                 return author.save();
             }
         },
+        deleteAuthor: {
+            type: AuthorType,
+            args: {
+                id: {type: GraphQLID}
+            },
+            resolve(parent, args) {
+                Author.findOneAndRemove({_id: args.id});
+            }
+        },
         addBook: {
             type: BookType,
             args:{

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Quick Home</h1>
+ <button onclick="getUsers()">get users</button>
+ <input type="text">
+ <button onclick="addUser()">add users</button>
+ <div id="text">
+
+ </div>
+<script>
+
+    const state = {
+        users: [ 'vinson', 'adam','test'],
+    };
+    const textContainer = document.getElementById('text');
+    function gameLoop() {
+        console.log('loop')
+        textContainer.innerText = '';
+        const ul = document.createElement('ul');
+        state.users.forEach( user => {
+           const li = document.createElement('li');
+           ul.appendChild(li);
+           li.innerText = user;
+        });
+        textContainer.appendChild(ul);
+        window.requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+
+    function getUsers() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'get-users');
+        xhr.onload = function () {
+            console.log('get-user response',JSON.parse(this.responseText));
+            state.users = JSON.parse(this.responseText);
+        };
+        xhr.send();
+    }
+
+    function addUser() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'add-user');
+        const payload = {user: document.querySelector('input').value};
+        console.log('payload', payload);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onload = function () {
+            console.log('add-user response',this.responseText);
+            // state.users = JSON.parse(this.responseText);
+            getUsers();
+        };
+        xhr.send(JSON.stringify(payload));
+    }
+
+</script>
+</body>
+</html>
