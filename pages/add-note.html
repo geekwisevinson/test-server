@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Add Note</h1>
+
+<input type="text" placeholder="name">
+<input type="text" placeholder="flatName">
+<input type="text" placeholder="sharpName">
+<input type="text" placeholder="noteNumber">
+<button onclick="addNote(true)">Add Note</button>
+<button onclick="addNote(false)">Update Note</button>
+<script>
+
+    function addNote(p_isNew) {
+        const values = getValues();
+        const payload = {};
+        let payloadString = '';
+        Object.keys(values).forEach( key => {
+            if (values[key]) {
+                payload[key] = values[key];
+                payloadString += `${key}: ${surround(values[key])} `
+            }
+        });
+        function surround(value) {
+            return isNaN(Number(value)) ? `"${value}"` : value;
+        }
+        console.log('payload', payload);
+        const options = {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: `mutation { addNote( ${payloadString} ){name noteNumber flatName sharpName frequency } }`
+            })
+        };
+
+        fetch(`http://localhost:3000/graphql`, options)
+            .then(res => res.json())
+            .then(res => console.log(res));
+
+    }
+
+    function getValues() {
+        return {
+            name: document.querySelector('[placeholder=name]').value,
+            flatName: document.querySelector('[placeholder=flatName]').value,
+            sharpName: document.querySelector('[placeholder=sharpName]').value,
+            noteNumber: document.querySelector('[placeholder=noteNumber]').value,
+        }
+    }
+</script>
+</body>
+</html>

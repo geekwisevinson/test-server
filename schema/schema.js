@@ -1,6 +1,7 @@
 const graphgl = require('graphql');
 const Book = require('../models/book');
 const Author = require('../models/author');
+const Note = require('../models/note');
 const {
     GraphQLObjectType,
     GraphQLID,
@@ -10,7 +11,6 @@ const {
     GraphQLList,
     GraphQLNonNull,
 } = graphgl;
-
 
 
 const BookType = new GraphQLObjectType({
@@ -28,13 +28,25 @@ const BookType = new GraphQLObjectType({
     })
 });
 
+const NoteType = new GraphQLObjectType({
+    name: 'Note',
+    fields: () => ({
+        id: {type: GraphQLID},
+        name: {type: GraphQLString},
+        flatName: {type: GraphQLString},
+        sharpName: {type: GraphQLString},
+        noteNumber: {type: GraphQLInt},
+        frequency: {type: new GraphQLList(GraphQLInt)}
+    })
+});
+
 const AuthorType = new GraphQLObjectType({
     name: 'Author',
     fields: () => ({
         id: {type: GraphQLID},
         name: {type: GraphQLString},
         age: {type: GraphQLInt},
-        books:{
+        books: {
             type: new GraphQLList(BookType),
             args: {name: {type: GraphQLString}},
             resolve(parent, args) {
@@ -61,14 +73,14 @@ const RootQuery = new GraphQLObjectType({
         author: {
             type: AuthorType,
             args: {id: {type: GraphQLID}},
-            resolve(parent,args){
+            resolve(parent, args) {
                 return Author.findById(args.id);
             }
         },
-        books:{
+        books: {
             type: new GraphQLList(BookType),
             args: {name: {type: GraphQLString}},
-            resolve(parent,args) {
+            resolve(parent, args) {
                 const query = {};
                 if (args.name) {
                     query.name = {$regex: args.name, $options: "ig"}
@@ -76,15 +88,38 @@ const RootQuery = new GraphQLObjectType({
                 return Book.find(query);
             }
         },
-        authors:{
+        authors: {
             type: new GraphQLList(AuthorType),
             args: {name: {type: GraphQLString}},
-            resolve(parent,args) {
+            resolve(parent, args) {
                 const query = {};
                 if (args.name) {
                     query.name = {$regex: args.name, $options: "ig"}
                 }
                 return Author.find(query);
+            }
+        },
+        notes: {
+            type: new GraphQLList(NoteType),
+            args: {
+                name: {type: GraphQLString},
+                noteNumber: {type: GraphQLInt},
+                flatName: {type: GraphQLString},
+                sharpName: {type: GraphQLString},
+                frequency: {type: new GraphQLList(GraphQLInt)}
+            },
+            resolve(parent, args) {
+                const query = {};
+                if (args.name) {
+                    query.name = {$regex: args.name, $options: "ig"}
+                }
+                if (args.flatName) {
+                    query.flatName = {$regex: args.flatName, $options: "ig"}
+                }
+                if (args.sharpName) {
+                    query.sharpName = {$regex: args.sharpName, $options: "ig"}
+                }
+                return Note.find(query);
             }
         }
     }
@@ -118,12 +153,12 @@ const Mutation = new GraphQLObjectType({
         },
         addBook: {
             type: BookType,
-            args:{
+            args: {
                 name: {type: new GraphQLNonNull(GraphQLString)},
                 genre: {type: new GraphQLNonNull(GraphQLString)},
                 authorID: {type: new GraphQLNonNull(GraphQLID)},
             },
-            resolve(parent, args){
+            resolve(parent, args) {
                 let book = new Book({
                     name: args.name,
                     genre: args.genre,
@@ -131,7 +166,51 @@ const Mutation = new GraphQLObjectType({
                 });
                 return book.save();
             }
-        }
+        },
+        addNote: {
+            type: NoteType,
+            args: {
+                name: {type: new GraphQLNonNull(GraphQLString)},
+                noteNumber: {type: new GraphQLNonNull(GraphQLInt)},
+                flatName: {type: GraphQLString},
+                sharpName: {type: GraphQLString},
+                frequency: {type: new GraphQLList(GraphQLInt)}
+            },
+            resolve(parent, args) {
+                let note = new Note({
+                    name: args.name,
+                    flatName:  args.flatName,
+                    sharpName:  args.sharpName,
+                    frequency:  args.frequency,
+                    noteNumber: args.noteNumber,
+                });
+                return note.save();
+            }
+        },
+        updateNote: {
+            type: NoteType,
+            args: {
+                name: {type: new GraphQLNonNull(GraphQLString)},
+                noteNumber: {type: new GraphQLNonNull(GraphQLInt)},
+                flatName: {type: GraphQLString},
+                sharpName: {type: GraphQLString},
+                frequency: {type: new GraphQLList(GraphQLInt)}
+            },
+            resolve(parent, args) {
+                console.log('update note', args);
+                const query = {};
+                if (args.flatName) {
+                    query.flatName = args.flatName
+                }
+                if (args.sharpName) {
+                    query.sharpName = args.sharpName
+                }
+                if (args.noteNumber) {
+                    query.noteNumber = args.noteNumber
+                }
+                return Note.findOneAndUpdate({name: args.name}, query, {new: true});
+            }
+        },
     }
 });
 

@@ -2,11 +2,11 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const fs = require('fs');
 const port = 3000;
 
 const app = express();
 const uri = process.env.MONGO_URI;
-console.log('env',  uri)
 mongoose.connect(uri,  { useNewUrlParser: true });
 mongoose.connection.once('open', ()=>{
     console.log('connect to db')
@@ -21,4 +21,24 @@ app.use('/graphql', graphqlHTTP({
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/home.html'));
 
+app.get('/pages/:page', (req, res) => {
+
+    console.log('req.params', req.params);
+    if(req.params && req.params.page) {
+        res.sendFile(__dirname + '/pages/' + req.params.page)
+    }
+
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+
+function getModels() {
+    fs.readdirSync('./models').forEach( dir => {
+        const name = dir.substring(0, 1).toUpperCase() +  dir.substring(0, dir.indexOf('.')).substr(1);
+        console.log('dir', name);
+
+    })
+}
+
+getModels();
