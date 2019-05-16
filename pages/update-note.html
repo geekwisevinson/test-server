@@ -10,7 +10,7 @@
         <a href="/pages/add-note.html">Add Notes</a> <a href="/pages/get-notes.html">Get Notes</a><a href="/pages/update-note.html">Update Notes</a>
     </div>
 </div>
-<h1>Add Note</h1>
+<h1>Update Note</h1>
 
 <input type="text" placeholder="name">
 <input type="text" placeholder="flatName">
@@ -30,22 +30,12 @@
             }
         });
         function surround(value) {
-            return isNaN(Number(value)) ? `"${value}"` : value;
+            return isNaN(Number(value)) ? `"${value}"` : Number(value);
         }
         console.log('payload', payload);
-        const options = {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                query: `mutation { addNote( ${payloadString} ){name noteNumber flatName sharpName frequency } }`
-            })
-        };
-
-        fetch(`http://localhost:3000/graphql`, options)
-            .then(res => res.json())
-            .then(res => console.log(res));
+        gql(payloadString, function (res) {
+            console.log(res);
+        })
 
     }
 

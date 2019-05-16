@@ -205,9 +205,10 @@ const Mutation = new GraphQLObjectType({
                 if (args.sharpName) {
                     query.sharpName = args.sharpName
                 }
-                if (args.noteNumber) {
+                if (args.noteNumber || args.noteNumber === 0) {
                     query.noteNumber = args.noteNumber
                 }
+                console.log(query);
                 return Note.findOneAndUpdate({name: args.name}, query, {new: true});
             }
         },

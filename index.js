@@ -1,11 +1,13 @@
 const express = require('express');
+const path = require('path');
+const app = express();
 const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const fs = require('fs');
 const port = 3000;
 
-const app = express();
+app.use('/public', express.static(path.join(__dirname, 'public')));
 const uri = process.env.MONGO_URI;
 mongoose.connect(uri,  { useNewUrlParser: true });
 mongoose.connection.once('open', ()=>{

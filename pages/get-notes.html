@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../public/gql-request.js"></script>
+</head>
+<body>
+<div>
+    <div>
+        <a href="/pages/add-note.html">Add Notes</a> <a href="/pages/get-notes.html">Get Notes</a><a href="/pages/update-note.html">Update Notes</a>
+    </div>
+</div>
+<h1>Get Notes</h1>
+<div id="container">
+
+</div>
+<script>
+
+    console.log(gql);
+    gql(`{ notes {name noteNumber flatName sharpName frequency } }`, res => {
+        console.log(res);
+        document.querySelector('#container').innerHTML = JSON.stringify(res.data.notes);
+    });
+
+    function getNotes(p_isNew) {
+
+        const options = {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: `{ notes {name noteNumber flatName sharpName frequency } }`
+            })
+        };
+
+        fetch(`http://localhost:3000/graphql`, options)
+            .then(res => res.json())
+            .then();
+
+
+    }
+</script>
+</body>
+</html>
