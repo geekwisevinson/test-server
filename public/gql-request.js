@@ -1,4 +1,5 @@
 function gql(value, callback) {
+    console.log('gqlQuery', value);
     const options = {
         method: "post",
         headers: {
@@ -11,6 +12,6 @@ function gql(value, callback) {
 
     fetch(`http://localhost:3000/graphql`, options)
         .then(res => res.json())
-        .then(res => callback);
+        .then(callback);
 
 }

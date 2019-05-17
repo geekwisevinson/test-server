@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="../public/gql-request.js"></script>
+    <script src="../public/custom-elements/custom-element.js"></script>
+    <script src="../public/custom-elements/note-nav.js"></script>
+    <script src="../public/custom-elements/get-notes.js"></script>
 </head>
 <body>
-<div>
-    <div>
-        <a href="/pages/add-note.html">Add Notes</a> <a href="/pages/get-notes.html">Get Notes</a><a href="/pages/update-note.html">Update Notes</a>
-    </div>
-</div>
+<note-nav></note-nav>
 <h1>Update Note</h1>
 
 <input type="text" placeholder="name">
 <input type="text" placeholder="flatName">
 <input type="text" placeholder="sharpName">
 <input type="text" placeholder="noteNumber">
-<button onclick="addNote(true)">Add Note</button>
+<input type="text" placeholder="frequency">
+<button onclick="addNote(true)">Update Note</button>
+<get-notes></get-notes>
 <script>
 
     function addNote(p_isNew) {
@@ -32,8 +34,8 @@
         function surround(value) {
             return isNaN(Number(value)) ? `"${value}"` : Number(value);
         }
-        console.log('payload', payload);
-        gql(payloadString, function (res) {
+        console.log('payload', payloadString);
+        gql( `mutation { updateNote( ${payloadString} ){name noteNumber flatName sharpName frequency } }`, function (res) {
             console.log(res);
         })
 
@@ -45,6 +47,7 @@
             flatName: document.querySelector('[placeholder=flatName]').value,
             sharpName: document.querySelector('[placeholder=sharpName]').value,
             noteNumber: document.querySelector('[placeholder=noteNumber]').value,
+            frequency: document.querySelector('[placeholder=frequency]').value,
         }
     }
 </script>

@@ -10,6 +10,7 @@ const {
     GraphQLInt,
     GraphQLList,
     GraphQLNonNull,
+    GraphQLFloat,
 } = graphgl;
 
 
@@ -36,7 +37,7 @@ const NoteType = new GraphQLObjectType({
         flatName: {type: GraphQLString},
         sharpName: {type: GraphQLString},
         noteNumber: {type: GraphQLInt},
-        frequency: {type: new GraphQLList(GraphQLInt)}
+        frequency: {type: GraphQLFloat}
     })
 });
 
@@ -106,7 +107,7 @@ const RootQuery = new GraphQLObjectType({
                 noteNumber: {type: GraphQLInt},
                 flatName: {type: GraphQLString},
                 sharpName: {type: GraphQLString},
-                frequency: {type: new GraphQLList(GraphQLInt)}
+                frequency: {type: GraphQLFloat}
             },
             resolve(parent, args) {
                 const query = {};
@@ -118,6 +119,9 @@ const RootQuery = new GraphQLObjectType({
                 }
                 if (args.sharpName) {
                     query.sharpName = {$regex: args.sharpName, $options: "ig"}
+                }
+                if (args.frequency) {
+                    query.frequency = {$regex: args.frequency, $options: "ig"}
                 }
                 return Note.find(query);
             }
@@ -174,7 +178,7 @@ const Mutation = new GraphQLObjectType({
                 noteNumber: {type: new GraphQLNonNull(GraphQLInt)},
                 flatName: {type: GraphQLString},
                 sharpName: {type: GraphQLString},
-                frequency: {type: new GraphQLList(GraphQLInt)}
+                frequency: {type: GraphQLFloat}
             },
             resolve(parent, args) {
                 let note = new Note({
@@ -191,10 +195,10 @@ const Mutation = new GraphQLObjectType({
             type: NoteType,
             args: {
                 name: {type: new GraphQLNonNull(GraphQLString)},
-                noteNumber: {type: new GraphQLNonNull(GraphQLInt)},
+                noteNumber: {type: GraphQLInt},
                 flatName: {type: GraphQLString},
                 sharpName: {type: GraphQLString},
-                frequency: {type: new GraphQLList(GraphQLInt)}
+                frequency: {type: GraphQLFloat}
             },
             resolve(parent, args) {
                 console.log('update note', args);
@@ -207,6 +211,10 @@ const Mutation = new GraphQLObjectType({
                 }
                 if (args.noteNumber || args.noteNumber === 0) {
                     query.noteNumber = args.noteNumber
+                }
+
+                if (args.frequency || args.frequency === 0) {
+                    query.frequency = args.frequency
                 }
                 console.log(query);
                 return Note.findOneAndUpdate({name: args.name}, query, {new: true});

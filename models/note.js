@@ -6,7 +6,7 @@ const noteSchema = new Schema({
     flatName: String,
     sharpName: String,
     noteNumber: Number,
-    frequency: [Number]
+    frequency: Number
 });
 
 
