@@ -3,8 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="/public/lib/p5/p5.js"></script>
+    <script src="/public/lib/p5/addons/p5.sound.js"></script>
+    <script src="/public/lib/p5/addons/p5.dom.js"></script>
 </head>
 <body>
+
+<script>
+
+    let mrNoisy;
+    let playButton;
+    let stopButton;
+    function setup() {
+        mrNoisy  = new p5.Noise();
+        mrNoisy.setType('brown');
+        mrNoisy.amp(1);
+        // mrNoisy.start();
+        playButton = createButton('play');
+        playButton.position(10,10);
+        playButton.mousePressed(startTheNoise);
+        stopButton = createButton('stop');
+        stopButton.position(10, 30);
+        stopButton.mousePressed(stopTheNoise);
+
+    }
+
+    function startTheNoise() {
+        mrNoisy.start();
+    }
+    function stopTheNoise() {
+        mrNoisy.stop();
+    }
+    function draw() {
+        background(220);
+    }
+</script>
 
 </body>
 </html>
