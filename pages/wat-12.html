@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/public/lib/p5/p5.js"></script>
+    <script src="/public/lib/p5/addons/p5.sound.js"></script>
+    <script src="/public/lib/p5/addons/p5.dom.js"></script>
+</head>
+<body>
+
+<script>
+    let snareNoise;
+    let env;
+
+    let snPat;
+    let drums;
+    let bpFilter;
+    let rev;
+    let dist;
+
+
+    function run() {
+        snPat = [1,0,0,0,1,0,1,0];
+        bpFilter = new p5.BandPass();
+        bpFilter.freq(500);
+        bpFilter.res(3);
+
+        dist = new p5.Distortion();
+
+        rev = new p5.Reverb();
+        // bpFilter.chain(rev, dist);
+        rev.process(bpFilter, 0.5, 1);
+        dist.process(bpFilter, 0.2, 1);
+
+        snareNoise = new p5.Noise();
+        snareNoise.start();
+        snareNoise.disconnect();
+        snareNoise.connect(bpFilter);
+
+        env = new p5.Envelope();
+        env.set(.0001, 5,0.01,0.001, 0.1, 0);
+        snareNoise.amp(env);
+
+
+        drums = new p5.Part();
+        drums.addPhrase('snare drum', (time)=> { env.play(snareNoise, time, 1);}, snPat);
+        drums.loop();
+    }
+
+    function setup() {
+        setTimeout(run, 1000);
+
+    }
+</script>
+</body>
+</html>

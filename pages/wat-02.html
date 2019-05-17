@@ -6,6 +6,11 @@
     <script src="/public/lib/p5/p5.js"></script>
     <script src="/public/lib/p5/addons/p5.sound.js"></script>
     <script src="/public/lib/p5/addons/p5.dom.js"></script>
+    <style>
+        body{
+            background-color: darkslategrey;
+        }
+    </style>
 </head>
 <body>
 
@@ -14,28 +19,64 @@
     let mrNoisy;
     let playButton;
     let stopButton;
+    let chooseNoise, setVolume;
+    let toggleOnOff;
+    let fft;
+
     function setup() {
-        mrNoisy  = new p5.Noise();
-        mrNoisy.setType('brown');
-        mrNoisy.amp(1);
-        // mrNoisy.start();
-        playButton = createButton('play');
-        playButton.position(10,10);
-        playButton.mousePressed(startTheNoise);
-        stopButton = createButton('stop');
-        stopButton.position(10, 30);
-        stopButton.mousePressed(stopTheNoise);
+        createCanvas(400, 200);
+        mrNoisy = new p5.Noise();
+        mrNoisy.setType('white');
+        mrNoisy.amp(0);
+        fft = new p5.FFT();
+        toggleOnOff = createButton('play');
+        toggleOnOff.position(10, 10);
+        toggleOnOff.mousePressed(function () {
+            if (mrNoisy.started) {
+                toggleOnOff.html('play');
+                mrNoisy.stop();
+            } else {
+                toggleOnOff.html('stop');
+                mrNoisy.start();
+            }
+        });
+
+        chooseNoise = createSelect();
+        chooseNoise.position(60, 10);
+        chooseNoise.option('white');
+        chooseNoise.option('pink');
+        chooseNoise.option('brown');
+        stroke(255);
+        chooseNoise.changed(function () {
+            mrNoisy.setType(chooseNoise.value());
+            fill(chooseNoise.value());
+        });
+        setVolume = createSlider(-60, 0, -60, 1);
+        setVolume.position(130, 10);
+        setVolume.input(function () {
+            if (setVolume.value() > -56) {
+                console.log(setVolume.value());
+                mrNoisy.amp(pow(10, setVolume.value() / 20), 0.01);
+            }else  {
+                mrNoisy.amp(map(setVolume.value(), -60, -56, 0, 0.0016), 0.01);
+            }
+
+        });
 
     }
 
-    function startTheNoise() {
-        mrNoisy.start();
-    }
-    function stopTheNoise() {
-        mrNoisy.stop();
-    }
+
     function draw() {
-        background(220);
+        background(40);
+        let spectrum = fft.analyze();
+        beginShape();
+        vertex(0, 200);
+
+        for (let i = 0; i < spectrum.length; i++) {
+            vertex(map(log(i), 0, log(spectrum.length), 0, 400), map(spectrum[i], 0, 255, 200, 0));
+        }
+        vertex(400, 200);
+        endShape();
     }
 </script>
 
