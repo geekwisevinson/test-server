@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/public/lib/tone-js/Tone.js"></script>
+    <script src="/public/lib/p5/p5.js"></script>
+    <script src="/public/lib/p5/addons/p5.sound.js"></script>
+    <script src="/public/lib/p5/addons/p5.dom.js"></script>
+</head>
+<body>
+<script>
+
+    let elapsedTime;
+    let average;
+    function setup() {
+        setTimeout(function () {
+            run();
+        }, 3);
+    }
+
+    function run() {
+        average = [];
+        createCanvas(400, 400);
+        Tone.Transport.start(0);
+        elapsedTime = 0;
+    }
+
+    function draw() {
+        background(220);
+        console.log('draw', Tone.now());
+        text('Tone.now()', 10, 20);
+        text(Tone.now().toFixed(3), 10, 30);
+        text('Transport', 10, 40);
+        text(Tone.Transport.seconds.toFixed(3), 10, 50);
+        text('elapsedTime', 10, 60);
+        text((60/elapsedTime).toFixed(3), 10, 70);
+    }
+
+    function keyPressed() {
+        average.push(Tone.Transport.seconds);
+        if (average.length > 8) {
+            average.shift();
+        }
+        elapsedTime = average.reduce((a, b) => a+b, 0) / average.length;
+
+
+        Tone.Transport.stop().start();
+    }
+</script>
+
+</body>
+</html>

@@ -13,19 +13,112 @@
 <script>
     let loopBeat;
     let bassSynth;
+    let cymbalSynth;
+    let counter;
+    let amSynth;
+    let fmSynth;
+    let pluckSynth;
     function setup() {
-       bassSynth = new Tone.MembraneSynth().toMaster();
-       loopBeat = new Tone.Loop(song, '4n');
-       console.log('setup');
-       Tone.Transport.start();
-       Tone.Transport.bpm.value = 140;
-       loopBeat.start(0);
+        setTimeout(run, 1000);
+    }
 
+    function run() {
+        pluckSynth = new Tone.PluckSynth().toMaster();
+        fmSynth = new Tone.AMSynth(
+            {
+                harmonicity  : 3 ,
+                modulationIndex  : 10 ,
+                detune  : 0 ,
+                oscillator  : {
+                    type  : 'sine'
+                }  ,
+                envelope  : {
+                    attack  : 0.01 ,
+                    decay  : 0.01 ,
+                    sustain  : 1 ,
+                    release  : 0.5
+                }  ,
+                modulation  : {
+                    type  : 'square'
+                }  ,
+                modulationEnvelope  : {
+                    attack  : 0.5 ,
+                    decay  : 0 ,
+                    sustain  : 1 ,
+                    release  : 0.5
+                }
+            }
+        ).toMaster();
+        amSynth = new Tone.AMSynth(
+            {
+                harmonicity  : 1.04 ,
+                detune  : 0 ,
+                oscillator  : {
+                    type  : "sine"
+                }  ,
+                envelope  : {
+                    attack  : 0.001 ,
+                    decay  : 0.01 ,
+                    sustain  : 1 ,
+                    release  : 0.5
+                }  ,
+                modulation  : {
+                    type  : "square"
+                }  ,
+                modulationEnvelope  : {
+                    attack  : 0.5 ,
+                    decay  : 0 ,
+                    sustain  : 1 ,
+                    release  : 0.5
+                }
+            }
+        ).toMaster();
+        counter = 0;
+        bassSynth = new Tone.MembraneSynth().toMaster();
+        cymbalSynth = new Tone.MetalSynth({
+            "frequency": 250,
+            "envelope": {
+                "attack": 0.001,
+                "decay": 1,
+                "release": 0.01,
+            },
+            harmonicity: 5.1,
+            modulationIndex: 32,
+            resonance: 4000,
+            octave: 1.5,
+        }).toMaster();
+        loopBeat = new Tone.Loop(song, '16n');
+        console.log('setup');
+        Tone.Transport.start();
+        Tone.Transport.bpm.value = 140;
+        loopBeat.start(0);
     }
     
     function song(time) {
+        let currentBeat = split(Tone.Transport.position, ':');
         console.log(time);
-        bassSynth.triggerAttackRelease('c3', '8n', time);
+
+        if(counter % 4 === 0) {
+            bassSynth.triggerAttackRelease('F1', '8n', time, 0.2);
+        }
+
+        if(counter % 4 !== 1) {
+            cymbalSynth.triggerAttackRelease('32n', time, 0.2);
+        }
+
+        if(counter % 6 === 1) {
+            pluckSynth.triggerAttackRelease('F1', '8n', time, 0.2);
+        }
+
+        console.log(currentBeat);
+        counter =(counter +1) % 16;
+        console.log('counter', counter);
+        if(counter === 0) {
+            // amSynth.triggerAttackRelease('A3', '16n', time, 0.8);
+        }
+        if(counter === 0) {
+            fmSynth.triggerAttackRelease('A3', '16n', time, 0.8);
+        }
 
     }
 </script>

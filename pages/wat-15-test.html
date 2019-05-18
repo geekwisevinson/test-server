@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/public/lib/p5/p5.js"></script>
+    <script src="/public/lib/p5/addons/p5.sound.js"></script>
+    <script src="/public/lib/p5/addons/p5.dom.js"></script>
+    <style>
+        html {background-color: darkred}
+    </style>
+</head>
+<body>
+
+
+<script>
+    let hh;
+    let bass;
+    let clap;
+    let hPat; // array of number to make beats
+    let bPat;
+    let cPat;
+    let hPhrase; //
+    let kPhrase;
+    let cPhrase;
+    let drums; //part
+    let bpmControl;
+    let beatLength = 16;
+    let cellWidth;
+    let sPat;
+    let cursorPause;
+    let stopButton;
+    let lastTime = 0;
+    function setup() {
+
+        bassSynth = new Tone.MembraneSynth().toMaster();
+        cymbalSynth = new Tone.MetalSynth({
+            "frequency": 250,
+            "envelope": {
+                "attack": 0.001,
+                "decay": 1,
+                "release": 0.01,
+            },
+            harmonicity: 5.1,
+            modulationIndex: 32,
+            resonance: 4000,
+            octave: 1.5,
+        }).toMaster();
+        cursorPause = 0;
+        sPat = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+        const cnv =createCanvas(320, 60);
+        cnv.mousePressed(canvasPressed);
+        cellWidth = width/beatLength;
+        hh = loadSound('/public/sounds/hh_sample.mp3', ()=> {});
+        bass = loadSound('/public/sounds/bass_sample.mp3', ()=> {});
+        clap = loadSound('/public/sounds/clap_sample.mp3', ()=> {});
+        hPat = [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0];
+        bPat = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0];
+        cPat = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0];
+        hPhrase = new p5.Phrase('hh', (time)=> {hh.play(time); lastTime = time}, hPat);
+        kPhrase = new p5.Phrase('kick', (time)=> {bassSynth.triggerAttackRelease('F1', '8n', time, 0.2); lastTime = time}, bPat);
+        cPhrase = new p5.Phrase('clap', (time)=> {clap.play(time); lastTime = time}, cPat);
+        drums = new p5.Part();
+        drums.addPhrase(hPhrase);
+        drums.addPhrase(kPhrase);
+        drums.addPhrase(cPhrase);
+        drums.addPhrase('seq', sequence, sPat);
+        drums.setBPM('80');
+        drums.onStep(()=>{console.log(drums.partStep); });
+        bpmControl = createSlider(30, 300, 80, 1);
+        bpmControl.position(10, 70)
+        bpmControl.input( () => {
+            drums.setBPM(bpmControl.value());
+        });
+        stopButton = createButton('Stop');
+        stopButton.mousePressed(function () {
+            drums.stop();
+            drums.metro.metroTicks = 0;
+            setTimeout(function () {
+                drawMatrix();
+            }, lastTime * 1000);
+        });
+
+        drawMatrix();
+    }
+
+    function drawMatrix() {
+        background(80);
+        stroke('black');
+        strokeWeight(2);
+        fill(255,255,255);
+        for(let i = 0; i < beatLength + 1; i++) {
+            console.log('')
+            line(i * (cellWidth),0, i * (cellWidth), 60)
+        }
+        for(let i = 0; i < 4; i++) {
+            console.log('')
+            line(0,i * height / 3, width, i * (height / 3))
+        }
+        for(let i = 0; i < beatLength; i++) {
+            if(hPat[i] === 1) {
+                ellipse(i * cellWidth + 0.5 * cellWidth, height/ 6, 10);
+            }
+            if(cPat[i] === 1) {
+                ellipse(i * cellWidth + 0.5 * cellWidth, height / 2, 10);
+            }
+            if(bPat[i] === 1) {
+                ellipse(i * cellWidth + 0.5 * cellWidth, height * 5 / 6, 10);
+            }
+        }
+    }
+
+    function keyPressed() {
+        if(getAudioContext().state !== 'running'){
+            getAudioContext().resume();
+            console.log('resume');
+        }
+        console.log('key', {key}, {test: key === ' '}, hh.isLoaded(), clap.isLoaded(), bass.isLoaded())
+        if (key === ' ' && hh.isLoaded() && clap.isLoaded() && bass.isLoaded()) {
+            console.log('drums.isPlaying', !drums.isPlaying)
+            if (!drums.isPlaying) {
+                console.log('start');
+                drums.loop();
+            } else {
+                drums.stop();
+            }
+        } else {
+            console.log('oops not loaded')
+        }
+
+    }
+    function canvasPressed() {
+        let rowClicked = floor(mouseY / height * 3);
+        let indexClicked = floor(mouseX/ width * beatLength);
+        if(rowClicked === 0) {
+            console.log('click first row',  indexClicked)
+            hPat[indexClicked] = +!hPat[indexClicked];
+        }else if(rowClicked === 1) {
+            console.log('click second row', indexClicked);
+            cPat[indexClicked] = +!cPat[indexClicked];
+        }else if(rowClicked === 2) {
+            console.log('click third row', indexClicked)
+            bPat[indexClicked] = +!bPat[indexClicked];
+        }
+        drawMatrix()
+    }
+
+    function sequence(time, beatIndex) {
+        console.log('beatIndex', beatIndex);
+
+        setTimeout(function () {
+            drawPlayHead(beatIndex);
+        }, time * 1000);
+
+    }
+    function drawPlayHead(beatIndex) {
+        drawMatrix();
+        stroke('red');
+        fill(255,0,0, 30);
+        rect( (beatIndex -1) * cellWidth, 0, cellWidth, height);
+    }
+</script>
+
+</body>
+</html>
