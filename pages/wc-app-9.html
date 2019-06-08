@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <header>
+        <h1>Bad News!</h1>
+    </header>
+
+
+    <script>
+
+
+        function request(file, callback) {
+            const options = {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            };
+            fetch(`http://localhost:3000/json/data/${file}`, options)
+                .then(res => res.json())
+                .then(callback);
+        }
+
+        request('news-data.json', function (res) {
+            console.log(res);
+        });
+
+    </script>
+
+
+</body>
+</html>

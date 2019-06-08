@@ -32,6 +32,17 @@ app.get('/pages/:page', (req, res) => {
 
 });
 
+app.get('/json/data/:file', (req, res) => {
+    if(req.params && req.params.file) {
+        const fullPath = __dirname + '/json-data/' + req.params.file;
+        fs.readFile(fullPath, (err, data) => {
+            if (err) throw err;
+            let parsedData = JSON.parse(data);
+            res.json(parsedData)
+        });
+    }
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 
