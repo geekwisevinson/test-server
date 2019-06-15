@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        :root{
+            --myGrid: 'a b c'
+            'd e f'
+            'h i g';
+            --test: 'f i c'
+            'a e b'
+            'h d g';
+        }
+        .wrapper {
+            display: grid;
+            width: 100%;
+            height: 250px;
+            grid-template-areas: var(--myGrid);
+            background-color: aqua;
+            transition: all ease 1s;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+
+        .a, .b, .c, .d, .e, .f, .g ,.h, .i {
+            height: 100px;
+            border: 1px solid black;
+            width: 100%;
+            transition: all ease 5s;
+        }
+        .a {
+            grid-area: a;
+            background-color: hsla(0, 50%,100%, .6);
+
+        }
+        .b {
+            grid-area: b;
+
+        }
+        .c {
+            grid-area: c;
+
+        }
+        .d {
+            grid-area: d;
+        }
+        .e {
+            grid-area: e;
+        }
+        .f {
+            grid-area: f;
+        }
+        .g {
+            grid-area: g;
+        }
+        .h {
+            grid-area: h;
+        }
+        .i {
+            grid-area: i;
+        }
+        span {
+            display: block;
+            transition: all ease 1s;
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            height: 15px;
+            background-color: pink;
+            border: 1px solid black;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="a">a<span>a</span></div>
+    <div class="b">b<span>b</span></div>
+    <div class="c">c<span>c</span></div>
+    <div class="d">d<span>d</span></div>
+    <div class="e">e<span>e</span></div>
+    <div class="f">f<span>f</span></div>
+    <div class="g">g<span>g</span></div>
+    <div class="h">h<span>h</span></div>
+    <div class="i">i<span>i</span></div>
+</div>
+
+<script>
+    let root = document.querySelector('.wrapper');
+    const divs = document.querySelectorAll('div:not(.wrapper)');
+    const spans = document.querySelectorAll('span');
+    divs.forEach( (div, index) => {
+        console.log(spans, index, divs);
+        spans[index].div = div;
+    });
+    setTimeout(function () {
+        root.style.setProperty('--myGrid', '"h a b" "e i c" "d f g"');
+        console.log('rana')
+    }, 3000);
+    setInterval(function () {
+        spans.forEach( span => {
+            const rect = span.div.getBoundingClientRect();
+            console.log(rect);
+            const top = rect.top;
+            const left = rect.left;
+            const width = rect.width;
+            const height = rect.height;
+            span.style.top = top + 'px';
+            span.style.left = left + 'px';
+            span.style.width = width + 'px';
+            span.style.height = height + 'px';
+        })
+    }, 100)
+</script>
+</body>
+</html>
